@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'">
+<title>IRIS</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #02040a; overflow: hidden; }
+  canvas { display: block; }
+  #label {
+    position: fixed; bottom: 5vh; width: 100%; text-align: center; z-index: 10;
+    font: 300 15px "Segoe UI", sans-serif; letter-spacing: 0.35em;
+    color: #7fdcff; opacity: 0; transition: opacity 1.2s; pointer-events: none;
+  }
+  #bar {
+    position: fixed; bottom: 9vh; left: 50%; transform: translateX(-50%); z-index: 20;
+    width: min(640px, 80vw); opacity: 0; pointer-events: none; transition: opacity 0.4s;
+  }
+  #bar.on { opacity: 1; pointer-events: auto; }
+  #q {
+    width: 100%; box-sizing: border-box; padding: 10px 6px; background: transparent;
+    border: 0; border-bottom: 1px solid rgba(127, 220, 255, 0.6); outline: none;
+    color: #d8f4ff; caret-color: #7fdcff; text-align: center;
+    font: 300 22px "Segoe UI", sans-serif; letter-spacing: 0.04em;
+  }
+  #cap {
+    position: fixed; bottom: 11vh; left: 50%; transform: translateX(-50%); z-index: 15;
+    width: min(900px, 80vw); max-height: 28vh; overflow: hidden; text-align: center;
+    font: 300 17px/1.5 "Segoe UI", sans-serif; color: #a8e4f7; opacity: 0;
+    transition: opacity 0.8s; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div id="label"></div>
+<div id="cap"></div>
+<div id="bar"><input id="q" type="text" autocomplete="off" spellcheck="false" placeholder="Ask IRIS anything"></div>
+<script type="module" src="eye.js"></script>
+<script type="module" src="ui.js"></script>
+</body>
+</html>
