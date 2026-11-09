@@ -37,6 +37,7 @@ function send(id, key, text, signal) {
 async function speak(text) {
   const key = process.env.ELEVENLABS_API_KEY;
   if (!key) return { ok: false, error: 'No ELEVENLABS_API_KEY in the .env file.' };
+  console.log('IRIS says: ' + text);
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 20000);
   try {

@@ -68,6 +68,17 @@ function cancelAll() { // stop whatever IRIS is doing right now
 }
 
 const tidy = (t) => t.replace(/\[(.*?)\]\(.*?\)/g, '$1').replace(/[*_#`>~]/g, '').replace(/\s+/g, ' ').trim();
+// Makes numbers and units sound right when spoken (for example 72 degrees Fahrenheit)
+const forSpeech = (t) => t
+  .replace(/\u2212/g, '-')
+  .replace(/(-?\d+(?:\.\d+)?)\s*(?:[\u00B0\u00BA\u02DA]|deg(?:rees?)?\.?)\s*([CF])\b/gi, (m, n, u) => n + ' degrees ' + (u.toUpperCase() === 'F' ? 'Fahrenheit' : 'Celsius'))
+  .replace(/(-?\d+(?:\.\d+)?)\s*\u2103/g, '$1 degrees Celsius')
+  .replace(/(-?\d+(?:\.\d+)?)\s*\u2109/g, '$1 degrees Fahrenheit')
+  .replace(/(?<![\w.])(-?\d+(?:\.\d+)?)([CF])\b/g, (m, n, u) => n + ' degrees ' + (u === 'F' ? 'Fahrenheit' : 'Celsius'))
+  .replace(/(-?\d+(?:\.\d+)?)\s*[\u00B0\u00BA\u02DA]/g, '$1 degrees')
+  .replace(/(\d+)\s*[-\u2013]\s*(\d+)(\s+degrees)/g, '$1 to $2$3')
+  .replace(/\bmph\b/gi, 'miles per hour').replace(/\bkm\/h\b/gi, 'kilometers per hour')
+  .replace(/(^|[\s(])-(\d)/g, '$1minus $2').replace(/%/g, ' percent').replace(/&/g, ' and ');
 function clip(text, max) {
   if (text.length <= max) return text;
   const cut = text.slice(0, max);
@@ -83,7 +94,7 @@ function pickVoice() {
   return (VOICE_HINT && by(new RegExp(VOICE_HINT, 'i'))) || natural[0] || by(FEMALE) || vs[0] || null;
 }
 function speakWindows(clean, id) {
-  const parts = (clean.match(/[^.!?]+[.!?]*/g) || [clean]).map((p) => p.trim()).filter(Boolean);
+  const parts = (forSpeech(clean).match(/[^.!?]+[.!?]*/g) || [forSpeech(clean)]).map((p) => p.trim()).filter(Boolean);
   const voice = pickVoice();
   started = false;
   speechSynthesis.cancel();
@@ -122,7 +133,7 @@ async function speak(text, id) {
   const spoken = PRO_VOICE ? clip(clean, MAX_CHARS) : clean;
   caption(spoken, 0);
   if (!PRO_VOICE) return speakWindows(spoken, id);
-  const r = await window.irisBridge.tts(spoken);
+  const r = await window.irisBridge.tts(forSpeech(spoken));
   if (id !== reqId) return;
   if (!r.ok) { console.log('IRIS: pro voice unavailable, using the Windows voice.', r.error); return speakWindows(spoken, id); }
   try { await playAudio(r.audio, id); } catch (e) { console.log('IRIS audio error:', e && e.message); if (id === reqId) speakWindows(spoken, id); }
